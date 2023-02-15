@@ -1,15 +1,32 @@
 import { defineConfig } from 'vite';
-import multi from '@rollup/plugin-multi-entry';
+import path from 'path';
+import fs from 'fs';
 import injectHTML from 'vite-plugin-html-inject';
 import FullReload from 'vite-plugin-full-reload';
+
+const findByExtension = (dir, ext) => {
+  const matchedFiles = [];
+
+  const files = fs.readdirSync(dir);
+
+  for (const file of files) {
+    const fileExt = path.extname(file);
+
+    if (fileExt === `.${ext}`) {
+      matchedFiles.push(`${dir}/${file}`);
+    }
+  }
+
+  return matchedFiles;
+};
 
 export default defineConfig({
   root: 'src',
   build: {
     rollupOptions: {
-      input: ['./src/**.html'],
+      input: findByExtension('./src', 'html'),
     },
     outDir: '../dist',
   },
-  plugins: [multi(), injectHTML(), FullReload(['./src/**/**.html'])],
+  plugins: [injectHTML(), FullReload(['./src/**/**.html'])],
 });
